@@ -1,4 +1,4 @@
-name: Setup DC mission 3585
+name: Test DC mission 3585
 
 env:
   # Credentials used by the Terraform script
