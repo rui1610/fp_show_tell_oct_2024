@@ -9,7 +9,7 @@ cli_server_url = null
 region = "us10"
 
 # Name of your sub account
-subaccount_name = "Mission 3585 setup by GitHub actions"
+subaccount_name = "Show and tell Oct 2024 - QAS with GitHub action"
 
 # ------------------------------------------------------------------------------------------------------
 # Service configuration
