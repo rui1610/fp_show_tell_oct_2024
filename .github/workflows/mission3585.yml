@@ -25,7 +25,7 @@ jobs:
           {
             'name': 'Get Started on SAP BTP with SAPUI5',
             'folder': 'scripts/discovery_center/mission_3585', 
-            'var_file' : '../../config/mission3585.tfvars', 
+            'var_file' : '../../../config/mission3585.tfvars', 
             'use_custom_idp' : true 
           }
         ]
