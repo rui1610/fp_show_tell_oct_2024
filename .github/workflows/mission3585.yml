@@ -1,0 +1,75 @@
+name: Setup DC mission 3585
+
+env:
+  # Credentials used by the Terraform script
+  BTP_USERNAME: ${{ secrets.BTP_USERNAME }}
+  BTP_PASSWORD: ${{ secrets.BTP_PASSWORD }}
+  CUSTOM_IDP:  ${{ secrets.CUSTOM_IDP }}
+  CF_USER: ${{ secrets.BTP_USERNAME }}
+  CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
+  GLOBALACCOUNT: ${{ secrets.GLOBALACCOUNT }}
+
+on:
+  workflow_dispatch:
+
+    
+jobs:
+  setup_infrastructure:
+    name: Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        usecase: [
+          {
+            'name': 'Get Started on SAP BTP with SAPUI5',
+            'folder': 'scripts/discovery_center/mission3585', 
+            'var_file' : '../config/mission3585.tfvars', 
+            'use_custom_idp' : true 
+          }
+        ]
+        
+    steps:
+      - name: Check out Git repository
+        id: checkout_repo
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        id : setup_terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+          terraform_version: latest
+      - name: Terraform Init
+        id: terraform_init
+        shell: bash
+        run: |
+          terraform -chdir=${{ matrix.usecase.folder }} init -no-color
+      - name: Terraform apply
+        id: terraform_apply
+        shell: bash
+        run: |
+          export BTP_USERNAME=${{ secrets.BTP_USERNAME }}
+          export BTP_PASSWORD=${{ secrets.BTP_PASSWORD }}
+          export CF_USER=${{ secrets.BTP_USERNAME }}
+          export CF_PASSWORD=${{ secrets.BTP_PASSWORD }}
+          if [ ${{ matrix.usecase.use_custom_idp }} = true ]
+          then 
+            terraform -chdir=${{ matrix.usecase.folder }} apply -var-file='${{ matrix.usecase.var_file }}' -var globalaccount='${{ secrets.GLOBALACCOUNT }}' -var custom_idp='${{ secrets.CUSTOM_IDP }}' -auto-approve -no-color 
+          else 
+            terraform -chdir=${{ matrix.usecase.folder }} apply -var-file='${{ matrix.usecase.var_file }}' -var globalaccount='${{ secrets.GLOBALACCOUNT }}' -auto-approve -no-color 
+          fi
+      # - name: Terraform destroy
+      #   id: terraform_destroy
+      #   shell: bash
+      #   run: |
+      #     export BTP_USERNAME=${{ secrets.BTP_USERNAME }}
+      #     export BTP_PASSWORD=${{ secrets.BTP_PASSWORD }}
+      #     export CF_USER=${{ secrets.BTP_USERNAME }}
+      #     export CF_PASSWORD=${{ secrets.BTP_PASSWORD }}
+      #     if [ ${{ matrix.usecase.use_custom_idp }} = true ]
+      #     then 
+      #       terraform -chdir=${{ matrix.usecase.folder }} destroy -var-file='${{ matrix.usecase.var_file }}' -var globalaccount='${{ secrets.GLOBALACCOUNT }}' -var custom_idp='${{ secrets.CUSTOM_IDP }}' -auto-approve -no-color 
+      #     else 
+      #       terraform -chdir=${{ matrix.usecase.folder }} destroy -var-file='${{ matrix.usecase.var_file }}' -var globalaccount='${{ secrets.GLOBALACCOUNT }}' -auto-approve -no-color 
+      #     fi   
